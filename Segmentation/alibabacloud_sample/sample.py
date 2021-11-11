@@ -40,6 +40,8 @@ def portrait_generator():
         # sobelX = cv2.Sobel(element, cv2.CV_64F, 1, 0)  # x方向的梯度
         # sobelY = cv2.Sobel(element, cv2.CV_64F, 0, 1)  # y方向的梯度
         # element = cv2.bitwise_or(sobelX, sobelY)  #
+        # ret, thresh = cv2.threshold(value, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
         if key == 'l_eye' or key == 'r_eye' or key == 'l_brow' or key == 'r_brow':
             # Horizontal = cv2.Sobel(value, 0, 1, 0, cv2.CV_64F)
             #
@@ -54,6 +56,11 @@ def portrait_generator():
         else:
             # value = cv2.Canny(value, 10, 200)
             value = cv2.Laplacian(value, cv2.CV_8U, ksize=3, scale=5, delta=10)
+        # # 寻找二值化图中的轮廓
+        # contours, hierarchy = cv2.findContours(
+        #     thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        #
+        # cv2.drawContours(value, contours, -1, (0, 0, 0), 2)
         merge_img += value
         # cv2.add(merge_img, value)
 
