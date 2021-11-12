@@ -15,6 +15,7 @@ import cv2
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
+from XDoG import XDoG_filter
 
 def portrait_generator():
     dict_of_img = {}  # this if for store all of the image data
@@ -31,7 +32,7 @@ def portrait_generator():
     print(dict_of_img.keys())
 
     img_shape = dict_of_img['skin'].shape
-    merge_img = np.zeros([img_shape[0], img_shape[1]])
+    merge_img = np.zeros([img_shape[0], img_shape[1]]).astype(np.uint8)
     # merge_img = dict_of_img['skin'].copy()
     print(len(dict_of_img))
     print(img_shape)
@@ -41,8 +42,15 @@ def portrait_generator():
         # sobelY = cv2.Sobel(element, cv2.CV_64F, 0, 1)  # y方向的梯度
         # element = cv2.bitwise_or(sobelX, sobelY)  #
         # ret, thresh = cv2.threshold(value, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-
-        if key == 'l_eye' or key == 'r_eye' or key == 'l_brow' or key == 'r_brow':
+        if key == 'l_brow' or key == 'r_brow':
+            result_image = XDoG_filter(value,
+                                       kernel_size=0,
+                                       sigma=0.8,
+                                       k_sigma=1.6,
+                                       epsilon=-0.1,
+                                       phi=200,
+                                       gamma=0.9)
+        elif key == 'l_eye' or key == 'r_eye':
             # Horizontal = cv2.Sobel(value, 0, 1, 0, cv2.CV_64F)
             #
             # # 门槛就像
@@ -52,16 +60,30 @@ def portrait_generator():
             # # 做按位运算
             # value = cv2.bitwise_or(Horizontal, Vertical)  # 显示边缘图像
 
-            value = cv2.Laplacian(value, cv2.CV_8U, ksize=3, scale = 3, delta = 10)
+            # value = cv2.Laplacian(value, cv2.CV_8U, ksize=3, scale = 3, delta = 10)
+            result_image = XDoG_filter(value,
+                                       kernel_size=0,
+                                       sigma=0.8,
+                                       k_sigma=1.6,
+                                       epsilon=-0.1,
+                                       phi=200,
+                                       gamma=0.945)
         else:
             # value = cv2.Canny(value, 10, 200)
-            value = cv2.Laplacian(value, cv2.CV_8U, ksize=3, scale=5, delta=10)
+            # value = cv2.Laplacian(value, cv2.CV_8U, ksize=3, scale=5, delta=10)
+            result_image = XDoG_filter(value,
+                                       kernel_size=0,
+                                       sigma=0.8,
+                                        k_sigma=1.6,
+                                        epsilon=-0.1,
+                                        phi=200,
+                                        gamma=0.99)
         # # 寻找二值化图中的轮廓
         # contours, hierarchy = cv2.findContours(
         #     thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         #
         # cv2.drawContours(value, contours, -1, (0, 0, 0), 2)
-        merge_img += value
+        merge_img += result_image
         # cv2.add(merge_img, value)
 
     print(merge_img)
@@ -106,7 +128,7 @@ class Sample:
         args: List[str],
             oss_url
     ) -> None:
-        client = Sample.create_client('LTAI5t5iAHQptb1hF7Ene2Nn', 'Aavb3sy7buip8WGmOm9c9D1LaAn4Wb')
+        client = Sample.create_client('LTAI5t5iAHQptb1hF7Enwe2Nn', 'Aavvb3sy7buip8WGmOm9c9D1LaAn4Wb')
         parse_face_request = imageseg_20191230_models.ParseFaceRequest(
             image_url=oss_url
         )
@@ -125,7 +147,7 @@ class Sample:
         args: List[str],
         oss_url
     ) -> None:
-        client = Sample.create_client('LTAI5t5iAHQptb1hF7Ene2Nn', 'Aavb3sy7buip8WGmOm9c9D1LaAn4Wb')
+        client = Sample.create_client('LTAI5t5iAHQptb1hF7Ewne2Nn', 'Aavvb3sy7buip8WGmOm9c9D1LaAn4Wb')
         parse_face_request = imageseg_20191230_models.ParseFaceRequest(
             image_url=oss_url
         )
@@ -134,10 +156,10 @@ class Sample:
 
 
 if __name__ == '__main__':
-    # file_utils = FileUtils("LTAI5t5iAHQptb1hF7Ene2Nn", "Aavb3sy7buip8WGmOm9c9D1LaAn4Wb")
-    # original_url = "https://www.thestatesman.com/wp-content/uploads/2017/08/1493458748-beauty-face-517.jpg"
-    # oss_url = file_utils.get_oss_url(
-    #     original_url, "jpg", False)
-    #
-    # Sample.main(sys.argv[1:], oss_url)
-    portrait_generator()
+    file_utils = FileUtils("LTAI5t5iAHQptb1hF7Ewne2Nn", "Aavvb3sy7buip8WGmOm9c9D1LaAn4Wb")
+    original_url = "https://www.thestatesman.com/wp-content/uploads/2017/08/1493458748-beauty-face-517.jpg"
+    oss_url = file_utils.get_oss_url(
+        original_url, "jpg", False)
+
+    Sample.main(sys.argv[1:], oss_url)
+    # portrait_generator()
